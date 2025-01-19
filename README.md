@@ -48,3 +48,28 @@ export default tseslint.config({
   },
 })
 ```
+
+## Running the Project
+
+To run the project, follow these steps:
+
+1. **Install dependencies**: Ensure you have Node.js installed, then run:
+    ```sh
+    npm install
+    ```
+
+2. **Start the development server**: This will start the Vite development server with hot module replacement:
+    ```sh
+    npm run dev
+    ```
+
+3. **Build for production**: To create a production build, run:
+    ```sh
+    npm run build
+    ```
+
+4. **Preview the production build**: To preview the production build locally, run:
+    ```sh
+    npm run preview
+    ```
+
