@@ -4,9 +4,14 @@ import { Contact } from "../types";
 interface SidebarProps {
   contacts: Contact[];
   onSelectContact: (contact: Contact) => void;
+  onAddContact: () => void;
 }
 
-const Sidebar: FC<SidebarProps> = ({ contacts, onSelectContact }) => {
+const Sidebar: FC<SidebarProps> = ({
+  contacts,
+  onSelectContact,
+  onAddContact,
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
 
@@ -40,7 +45,10 @@ const Sidebar: FC<SidebarProps> = ({ contacts, onSelectContact }) => {
           text-gray-600
           "
         />
-        <button className="mx-2 p-2 bg-white text-blue-500 border-blue-500 rounded">
+        <button
+          onClick={onAddContact}
+          className="mx-2 p-2 bg-white text-blue-500 border-blue-500 rounded"
+        >
           New
         </button>
       </div>
