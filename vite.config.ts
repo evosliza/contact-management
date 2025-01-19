@@ -10,8 +10,8 @@ export default defineConfig({
       usePolling: true,
     },
     hmr: {
-      protocol: 'ws',
-      host: 'localhost',
+      protocol: "ws",
+      host: "localhost",
     },
   },
 });

@@ -19,9 +19,9 @@ function ContactsListPage() {
   }
 
   return (
-    <div className="flex flex-row">
+    <div className="flex h-screen bg-white w-full">
       <Sidebar contacts={contacts} onSelectContact={handleContactSelect} />
-      <div className="flex-1 p-4">
+      <div className="flex-1 p-4 bg-white">
         {selectedContact ? (
           <ContactCard
             contact={selectedContact}
