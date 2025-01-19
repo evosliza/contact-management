@@ -1,16 +1,12 @@
+import { Link } from "@tanstack/react-router";
 import { Contact } from "../types";
 
 interface ContactCardProps {
   contact: Contact;
-  onEdit: (contact: Contact) => void;
   onDelete: (contact: Contact) => void;
 }
 
-const ContactCard: React.FC<ContactCardProps> = ({
-  contact,
-  onEdit,
-  onDelete,
-}) => {
+const ContactCard: React.FC<ContactCardProps> = ({ contact, onDelete }) => {
   return (
     <div
       className="flex
@@ -23,24 +19,20 @@ const ContactCard: React.FC<ContactCardProps> = ({
       max-w-80"
     >
       <img
-        src={contact.profilePicture}
-        alt={contact.name}
+        src={contact?.profilePicture || "https://i.pravatar.cc/100"}
+        alt={contact?.name}
         className="w-20 h-20 rounded-full mr-4"
       />
       <div>
-        <h3 className="font-semibold text-gray-600">{contact.name}</h3>
-        <p className="text-sm text-gray-600">@{contact.userName}</p>
-        <p className="text-sm text-gray-500">{contact.description}</p>
+        <h3 className="font-semibold text-gray-600">{contact?.name}</h3>
+        <p className="text-sm text-gray-600">@{contact?.userName}</p>
+        <p className="text-sm text-gray-500">{contact?.description}</p>
         <div className="flex mt-2">
-          <button
-            className="bg-white text-blue-500 px-2 py-1 border-blue-500 rounded mr-2 text-xs"
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit(contact);
-            }}
-          >
-            Edit
-          </button>
+          <Link to={`/contacts/${contact?.id}/edit`} className="text-blue-500">
+            <button className="bg-white text-blue-500 px-2 py-1 border-blue-500 rounded mr-2 text-xs">
+              Edit
+            </button>
+          </Link>
           <button
             onClick={(e) => {
               e.stopPropagation();

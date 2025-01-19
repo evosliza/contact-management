@@ -1,29 +1,21 @@
 import { FC, useState } from "react";
 import { Contact } from "../types";
 import { FaSearch } from "react-icons/fa";
+import { Link } from "@tanstack/react-router";
+import { Route } from "../routes/__root";
 
 interface SidebarProps {
   contacts: Contact[];
-  onSelectContact: (contact: Contact) => void;
-  onAddContact: () => void;
 }
 
-const Sidebar: FC<SidebarProps> = ({
-  contacts,
-  onSelectContact,
-  onAddContact,
-}) => {
+const Sidebar: FC<SidebarProps> = ({ contacts }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+
+  const { contactId = null } = Route.useParams();
 
   const filteredContacts = contacts.filter((contact) =>
     contact.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const handleSelectContact = (contact: Contact) => {
-    setSelectedContact(contact);
-    onSelectContact(contact);
-  };
 
   return (
     <div className="w-96 bg-gray-200 p-4">
@@ -48,29 +40,33 @@ const Sidebar: FC<SidebarProps> = ({
           "
         />
         <FaSearch className="absolute left-3 text-gray-400" />
-        <button
-          onClick={onAddContact}
-          className="mx-2 p-2 bg-white text-blue-500 border-blue-500 rounded"
-        >
-          New
-        </button>
+
+        <Link to="/contacts/create" className="ml-auto">
+          <button className="mx-2 p-2 bg-white text-blue-500 border-blue-500 rounded">
+            New
+          </button>
+        </Link>
       </div>
 
       <hr className="h-px my-4 bg-gray-200 border-0 dark:bg-gray-400 -mx-4" />
 
       <ul className="contact-list">
         {filteredContacts.map((contact) => (
-          <li
+          <Link
+            to={`/contacts/${contact.id}`}
             key={contact.id}
-            onClick={() => handleSelectContact(contact)}
-            className={`contact-item p-2 cursor-pointer rounded ${
-              selectedContact?.id === contact.id
-                ? "bg-blue-500 text-white"
-                : "text-black hover:bg-gray-300"
-            }`}
+            className="ml-auto"
           >
-            {contact.name}
-          </li>
+            <li
+              className={`contact-item p-2 cursor-pointer rounded ${
+                contactId && contactId === contact.id
+                  ? "bg-blue-500 text-white"
+                  : "text-black hover:bg-gray-300"
+              }`}
+            >
+              {contact.name}
+            </li>
+          </Link>
         ))}
       </ul>
     </div>

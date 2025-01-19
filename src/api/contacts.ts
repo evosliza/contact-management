@@ -16,6 +16,18 @@ export function useContacts() {
   });
 }
 
+export const useContact = (contactId: string | number) => {
+  return useQuery({
+    queryKey: ["contacts", contactId],
+    queryFn: async () => {
+      const response = await fetch(
+        `http://localhost:3000/contacts/${contactId}`
+      );
+      return await response.json();
+    },
+  });
+};
+
 export const addContact = async (
   newContact: Partial<Contact>
 ): Promise<Contact> => {

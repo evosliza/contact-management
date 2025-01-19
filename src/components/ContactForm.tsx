@@ -3,6 +3,7 @@ import { FieldApi, useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { Contact } from "../types";
 import { addContact, updateContact } from "../api/contacts";
+import { Link, redirect } from "@tanstack/react-router";
 
 // FieldInfo remains the same
 function FieldInfo({ field }: { field: FieldApi<any, any, any, any> }) {
@@ -28,11 +29,11 @@ const contactSchema = z.object({
 });
 
 interface ContactFormProps {
-  onFormClose: (newContact: Contact | null) => void;
+  onFormSubmit: (newContact: Contact | null) => void;
   contact?: Contact | null;
 }
 
-const ContactForm: FC<ContactFormProps> = ({ onFormClose, contact }) => {
+const ContactForm: FC<ContactFormProps> = ({ contact, onFormSubmit }) => {
   const form = useForm({
     defaultValues: {
       name: contact?.name || "",
@@ -47,7 +48,8 @@ const ContactForm: FC<ContactFormProps> = ({ onFormClose, contact }) => {
         const newContact = contact
           ? await updateContact({ ...value, id: contact.id })
           : await addContact(value);
-        onFormClose(newContact);
+
+        onFormSubmit(newContact);
         form.reset();
       } catch (error) {
         console.error("Validation failed:", error);
@@ -57,10 +59,6 @@ const ContactForm: FC<ContactFormProps> = ({ onFormClose, contact }) => {
 
   const handleReset = () => {
     form.reset();
-  };
-
-  const handleCloseForm = () => {
-    onFormClose(null);
   };
 
   return (
@@ -212,13 +210,15 @@ const ContactForm: FC<ContactFormProps> = ({ onFormClose, contact }) => {
               >
                 Reset
               </button>
-              <button
-                type="button"
-                onClick={handleCloseForm}
-                className="mx-2 py-1 px-3 text-sm bg-white text-blue-500 border-blue-500 rounded"
-              >
-                Close Form
-              </button>
+
+              <Link to={contact ? "/contacts/$contactId" : "/contacts"}>
+                <button
+                  type="button"
+                  className="mx-2 py-1 px-3 text-sm bg-white text-blue-500 border-blue-500 rounded"
+                >
+                  Close Form
+                </button>
+              </Link>
             </div>
           )}
         />
