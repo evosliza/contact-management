@@ -2,7 +2,7 @@ import { z } from "zod";
 import { FieldApi, useForm } from "@tanstack/react-form";
 import { Contact } from "../types";
 import { FC } from "react";
-import { addContact } from "../api/contacts";
+import { addContact, updateContact } from "../api/contacts";
 
 function FieldInfo({ field }: { field: FieldApi<any, any, any, any> }) {
   return (
@@ -39,7 +39,9 @@ const ContactCreateForm: FC<ContactCreateFormProps> = ({
       description: contact ? contact.description : "",
     } as Partial<Contact>,
     onSubmit: async ({ value }) => {
-      const newContact = await addContact(value);
+      const newContact = contact
+        ? await updateContact({ ...value, id: contact.id })
+        : await addContact(value);
       onFormClose(newContact);
       form.reset();
     },

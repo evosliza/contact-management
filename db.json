@@ -15,18 +15,11 @@
       "profilePicture": "https://i.pravatar.cc/100"
     },
     {
-      "id": "d26f",
-      "name": "hello",
-      "userName": "world",
+      "name": "Liza edited name",
+      "userName": "lizedited",
       "profilePicture": "https://i.pravatar.cc/100",
-      "description": "test user 3"
-    },
-    {
-      "id": "7bdb",
-      "name": "Liza Voskanyan",
-      "userName": "liz",
-      "profilePicture": "https://i.pravatar.cc/100",
-      "description": "sfsdfsd"
+      "description": "test user 3",
+      "id": "1b5d"
     }
   ]
 }
