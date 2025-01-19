@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { useContacts } from "../api/contacts";
+import { deleteContact, useContacts } from "../api/contacts";
 import ContactCard from "../components/ContactCard";
 import Sidebar from "../components/Sidebar";
 import { Contact } from "../types";
 import ContactCreateForm from "../components/ContactCreateForm";
+import ConfirmationModal from "../components/ConfirmationModal";
 
 function ContactsListPage() {
   const { data, isFetching, refetch } = useContacts();
@@ -11,6 +12,8 @@ function ContactsListPage() {
   const contacts = data || [];
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [contactToDelete, setContactToDelete] = useState<Contact | null>(null);
 
   const handleContactSelect = (contact: Contact) => {
     setSelectedContact(contact);
@@ -33,6 +36,26 @@ function ContactsListPage() {
     setIsCreating(true);
   };
 
+  const handleContactDelete = async (contact: Contact) => {
+    setContactToDelete(contact);
+    setIsModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (contactToDelete) {
+      await deleteContact(contactToDelete.id);
+      refetch();
+      setSelectedContact(null);
+      setIsModalOpen(false);
+      setContactToDelete(null);
+    }
+  };
+
+  const cancelDelete = () => {
+    setIsModalOpen(false);
+    setContactToDelete(null);
+  };
+
   if (isFetching) {
     return <div className="text-center text-gray-500">Loading...</div>;
   }
@@ -53,8 +76,8 @@ function ContactsListPage() {
         ) : selectedContact ? (
           <ContactCard
             contact={selectedContact}
-            onSelect={() => console.log("selected")}
             onEdit={handleContactEdit}
+            onDelete={handleContactDelete}
           />
         ) : (
           <div className="text-center text-gray-500">
@@ -62,6 +85,13 @@ function ContactsListPage() {
           </div>
         )}
       </div>
+      {isModalOpen && (
+        <ConfirmationModal
+          message="Are you sure you want to delete this contact?"
+          onConfirm={confirmDelete}
+          onCancel={cancelDelete}
+        />
+      )}
     </div>
   );
 }

@@ -2,14 +2,14 @@ import { Contact } from "../types";
 
 interface ContactCardProps {
   contact: Contact;
-  onSelect: (contact: Contact) => void;
-  onEdit: (contact: Contact) => void; // Add this prop
+  onEdit: (contact: Contact) => void;
+  onDelete: (contact: Contact) => void;
 }
 
 const ContactCard: React.FC<ContactCardProps> = ({
   contact,
-  onSelect,
   onEdit,
+  onDelete,
 }) => {
   return (
     <div
@@ -21,7 +21,6 @@ const ContactCard: React.FC<ContactCardProps> = ({
       cursor-pointer
       hover:bg-gray-100
       max-w-80"
-      onClick={() => onSelect(contact)}
     >
       <img
         src={contact.profilePicture}
@@ -42,7 +41,13 @@ const ContactCard: React.FC<ContactCardProps> = ({
           >
             Edit
           </button>
-          <button className="bg-white text-red-500 border-red-500 px-2 py-1 rounded text-xs">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(contact);
+            }}
+            className="bg-white text-red-500 border-red-500 px-2 py-1 rounded text-xs"
+          >
             Delete
           </button>
         </div>

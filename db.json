@@ -8,18 +8,11 @@
       "profilePicture": "https://i.pravatar.cc/100"
     },
     {
-      "id": "2",
-      "name": "Jane Smith",
-      "userName": "janesmith",
-      "description": "A project manager.",
-      "profilePicture": "https://i.pravatar.cc/100"
-    },
-    {
-      "name": "Liza edited name",
-      "userName": "lizedited",
+      "id": "88a3",
+      "name": "alice",
+      "userName": "aliceusername",
       "profilePicture": "https://i.pravatar.cc/100",
-      "description": "test user 3",
-      "id": "1b5d"
+      "description": "sfsdfsd"
     }
   ]
 }
