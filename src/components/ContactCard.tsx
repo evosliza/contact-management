@@ -19,7 +19,7 @@ const ContactCard: React.FC<ContactCardProps> = ({ contact, onDelete }) => {
       max-w-80"
     >
       <img
-        src={contact?.profilePicture || "https://i.pravatar.cc/100"}
+        src={contact?.profilePicture}
         alt={contact?.name}
         className="w-20 h-20 rounded-full mr-4"
       />

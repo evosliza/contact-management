@@ -3,7 +3,7 @@ import { FieldApi, useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { Contact } from "../types";
 import { addContact, updateContact } from "../api/contacts";
-import { Link, redirect } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 
 // FieldInfo remains the same
 function FieldInfo({ field }: { field: FieldApi<any, any, any, any> }) {
@@ -24,7 +24,13 @@ const contactSchema = z.object({
     .min(1, "Name is required")
     .min(3, "Name must be at least 3 characters"),
   userName: z.string().min(1, "Username is required"),
-  profilePicture: z.string().url("Invalid URL"),
+  profilePicture: z
+    .string()
+    .regex(/^https:\/\/i\.pravatar\.cc\/100\?img=\d+$/, "Invalid URL format")
+    .refine((url) => {
+      const match = url.match(/\?img=(\d+)$/);
+      return match && Number(match[1]) >= 1 && Number(match[1]) <= 100;
+    }, "Image number must be between 1 and 100"),
   description: z.string().optional(),
 });
 
@@ -38,16 +44,24 @@ const ContactForm: FC<ContactFormProps> = ({ contact, onFormSubmit }) => {
     defaultValues: {
       name: contact?.name || "",
       userName: contact?.userName || "",
-      profilePicture: contact?.profilePicture || "",
+      profilePicture: contact?.profilePicture
+        ? contact?.profilePicture.replace("https://i.pravatar.cc/100?img=", "")
+        : "",
       description: contact?.description || "",
     } as Partial<Contact>,
     onSubmit: async ({ value }) => {
+      // Format the profilePicture URL before validation
+      const formattedValue = {
+        ...value,
+        profilePicture: `https://i.pravatar.cc/100?img=${value.profilePicture}`,
+      };
+
       // Validate the entire form using Zod
       try {
-        contactSchema.parse(value);
+        contactSchema.parse(formattedValue);
         const newContact = contact
-          ? await updateContact({ ...value, id: contact.id })
-          : await addContact(value);
+          ? await updateContact({ ...formattedValue, id: contact.id })
+          : await addContact(formattedValue);
 
         onFormSubmit(newContact);
         form.reset();
@@ -133,8 +147,8 @@ const ContactForm: FC<ContactFormProps> = ({ contact, onFormSubmit }) => {
           name="profilePicture"
           validators={{
             onChange: ({ value }) => {
-              const result =
-                contactSchema.shape.profilePicture.safeParse(value);
+              const url = `https://i.pravatar.cc/100?img=${value}`;
+              const result = contactSchema.shape.profilePicture.safeParse(url);
               return result.success
                 ? undefined
                 : result.error.errors[0].message;
@@ -143,12 +157,18 @@ const ContactForm: FC<ContactFormProps> = ({ contact, onFormSubmit }) => {
           children={(field) => (
             <div className="flex flex-col gap-2">
               <label htmlFor={field.name} className="text-gray-600">
-                Profile Picture:
+                Profile Picture (1-100):
               </label>
               <input
                 id={field.name}
                 name={field.name}
-                value={field.state.value}
+                type="number"
+                min="1"
+                max="100"
+                value={field.state.value.replace(
+                  "https://i.pravatar.cc/100?img=",
+                  ""
+                )}
                 onBlur={field.handleBlur}
                 onChange={(e) => field.handleChange(e.target.value)}
                 className="w-72 p-2 border border-gray-300 rounded bg-white outline-none focus:ring-2 focus:ring-blue-500 text-gray-600"
