@@ -3,7 +3,7 @@ import { deleteContact, useContacts } from "../api/contacts";
 import ContactCard from "../components/ContactCard";
 import Sidebar from "../components/Sidebar";
 import { Contact } from "../types";
-import ContactCreateForm from "../components/ContactCreateForm";
+import ContactCreateForm from "../components/ContactForm";
 import ConfirmationModal from "../components/ConfirmationModal";
 
 function ContactsListPage() {
@@ -25,9 +25,11 @@ function ContactsListPage() {
     setIsCreating(true);
   };
 
-  const handleContactCreate = async (newContact: Contact) => {
-    refetch();
-    setSelectedContact(newContact);
+  const handleContactCreate = async (newContact: Contact | null) => {
+    if (newContact) {
+      await refetch();
+      setSelectedContact(newContact);
+    }
     setIsCreating(false);
   };
 

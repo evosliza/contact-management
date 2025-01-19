@@ -1,5 +1,6 @@
 import { FC, useState } from "react";
 import { Contact } from "../types";
+import { FaSearch } from "react-icons/fa";
 
 interface SidebarProps {
   contacts: Contact[];
@@ -25,8 +26,8 @@ const Sidebar: FC<SidebarProps> = ({
   };
 
   return (
-    <div className="w-72 bg-gray-200 p-4">
-      <div className="flex items-center mb-4">
+    <div className="w-96 bg-gray-200 p-4">
+      <div className="flex items-center mb-4 relative">
         <input
           type="text"
           placeholder="Search contacts..."
@@ -35,6 +36,7 @@ const Sidebar: FC<SidebarProps> = ({
           className="search-bar
           flex-grow
           p-2
+          pl-10
           border
           border-gray-300
           rounded
@@ -45,6 +47,7 @@ const Sidebar: FC<SidebarProps> = ({
           text-gray-600
           "
         />
+        <FaSearch className="absolute left-3 text-gray-400" />
         <button
           onClick={onAddContact}
           className="mx-2 p-2 bg-white text-blue-500 border-blue-500 rounded"
