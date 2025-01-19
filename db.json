@@ -3,16 +3,16 @@
     {
       "id": 1,
       "name": "John Doe",
-      "username": "johndoe",
+      "userName": "johndoe",
       "description": "A software developer.",
-      "profilePicture": "https://via.placeholder.com/150"
+      "profilePicture": "https://i.pravatar.cc/100"
     },
     {
       "id": 2,
       "name": "Jane Smith",
-      "username": "janesmith",
+      "userName": "janesmith",
       "description": "A project manager.",
-      "profilePicture": "https://via.placeholder.com/150"
+      "profilePicture": "https://i.pravatar.cc/100"
     }
   ]
 }
