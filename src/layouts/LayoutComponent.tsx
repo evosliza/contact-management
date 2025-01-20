@@ -1,14 +1,11 @@
 import { Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
-import Sidebar from "./Sidebar";
-import { useContacts } from "../api/contacts";
+import Sidebar from "../components/Sidebar";
 
 function LayoutComponent() {
-  const { data, isFetching, refetch } = useContacts();
-
   return (
     <div className="flex h-screen bg-white w-full">
-      <Sidebar contacts={data || []} />
+      <Sidebar />
       <Outlet />
       <TanStackRouterDevtools />
     </div>

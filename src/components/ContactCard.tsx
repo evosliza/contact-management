@@ -28,7 +28,11 @@ const ContactCard: React.FC<ContactCardProps> = ({ contact, onDelete }) => {
         <p className="text-sm text-gray-600">@{contact?.userName}</p>
         <p className="text-sm text-gray-500">{contact?.description}</p>
         <div className="flex mt-2">
-          <Link to={`/contacts/${contact?.id}/edit`} className="text-blue-500">
+          <Link
+            to="/contacts/$contactId/edit"
+            params={{ contactId: contact?.id }}
+            className="text-blue-500"
+          >
             <button className="bg-white text-blue-500 px-2 py-1 border-blue-500 rounded mr-2 text-xs">
               Edit
             </button>

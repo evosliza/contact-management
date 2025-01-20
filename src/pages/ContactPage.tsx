@@ -1,4 +1,4 @@
-import { deleteContact, useContact, useContacts } from "../api/contacts";
+import { useContact, useContacts, useDeleteContact } from "../api/contacts";
 import ContactCard from "../components/ContactCard";
 import { Route } from "../routes/contacts/$contactId";
 import { useState } from "react";
@@ -13,6 +13,8 @@ function ContactPage() {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [contactToDelete, setContactToDelete] = useState<Contact | null>(null);
+
+  const { mutate: deleteContact } = useDeleteContact();
 
   const handleDelete = (contact: Contact) => {
     setContactToDelete(contact);

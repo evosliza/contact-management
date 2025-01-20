@@ -1,8 +1,8 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import { FieldApi, useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { Contact } from "../types";
-import { addContact, updateContact } from "../api/contacts";
+import { useAddContact, useUpdateContact } from "../api/contacts";
 import { Link } from "@tanstack/react-router";
 
 // FieldInfo remains the same
@@ -24,13 +24,7 @@ const contactSchema = z.object({
     .min(1, "Name is required")
     .min(3, "Name must be at least 3 characters"),
   userName: z.string().min(1, "Username is required"),
-  profilePicture: z
-    .string()
-    .regex(/^https:\/\/i\.pravatar\.cc\/100\?img=\d+$/, "Invalid URL format")
-    .refine((url) => {
-      const match = url.match(/\?img=(\d+)$/);
-      return match && Number(match[1]) >= 1 && Number(match[1]) <= 100;
-    }, "Image number must be between 1 and 100"),
+  profilePicture: z.string().optional(),
   description: z.string().optional(),
 });
 
@@ -40,39 +34,58 @@ interface ContactFormProps {
 }
 
 const ContactForm: FC<ContactFormProps> = ({ contact, onFormSubmit }) => {
+  const { mutateAsync: addContactMutation } = useAddContact();
+  const { mutateAsync: updateContactMutation } = useUpdateContact();
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
   const form = useForm({
     defaultValues: {
       name: contact?.name || "",
       userName: contact?.userName || "",
-      profilePicture: contact?.profilePicture
-        ? contact?.profilePicture.replace("https://i.pravatar.cc/100?img=", "")
-        : "",
+      profilePicture: "https://i.pravatar.cc/100",
       description: contact?.description || "",
     } as Partial<Contact>,
     onSubmit: async ({ value }) => {
-      // Format the profilePicture URL before validation
+      // Generate a random profile picture URL
+      const randomProfilePicture = `https://i.pravatar.cc/100?img=${Math.floor(Math.random() * 10) + 1}`;
       const formattedValue = {
         ...value,
-        profilePicture: `https://i.pravatar.cc/100?img=${value.profilePicture}`,
+        profilePicture: randomProfilePicture,
       };
 
       // Validate the entire form using Zod
       try {
         contactSchema.parse(formattedValue);
-        const newContact = contact
-          ? await updateContact({ ...formattedValue, id: contact.id })
-          : await addContact(formattedValue);
+        const newContact: Contact = contact
+          ? ((await updateContactMutation({
+              ...formattedValue,
+              id: contact.id,
+            } as Contact)) as Contact)
+          : ((await addContactMutation(
+              formattedValue as Partial<Contact>
+            )) as Contact);
 
         onFormSubmit(newContact);
         form.reset();
+        setMessage(
+          contact
+            ? "Contact updated successfully!"
+            : "Contact created successfully!"
+        );
+        setError(null);
       } catch (error) {
         console.error("Validation failed:", error);
+        setError("An error occurred while submitting the form.");
+        setMessage(null);
       }
     },
   });
 
   const handleReset = () => {
     form.reset();
+    setMessage(null);
+    setError(null);
   };
 
   return (
@@ -84,6 +97,8 @@ const ContactForm: FC<ContactFormProps> = ({ contact, onFormSubmit }) => {
       className="flex h-full w-full items-center"
     >
       <div className="p-2 bg-white flex flex-col h-full gap-2 items-center">
+        {message && <div className="text-green-500">{message}</div>}
+        {error && <div className="text-red-500">{error}</div>}
         {/* Name Field */}
         <form.Field
           name="name"
@@ -145,32 +160,16 @@ const ContactForm: FC<ContactFormProps> = ({ contact, onFormSubmit }) => {
         {/* Profile Picture Field */}
         <form.Field
           name="profilePicture"
-          validators={{
-            onChange: ({ value }) => {
-              const url = `https://i.pravatar.cc/100?img=${value}`;
-              const result = contactSchema.shape.profilePicture.safeParse(url);
-              return result.success
-                ? undefined
-                : result.error.errors[0].message;
-            },
-          }}
           children={(field) => (
             <div className="flex flex-col gap-2">
               <label htmlFor={field.name} className="text-gray-600">
-                Profile Picture (1-100):
+                Profile Picture:
               </label>
               <input
+                readOnly
                 id={field.name}
                 name={field.name}
-                type="number"
-                min="1"
-                max="100"
-                value={field.state.value.replace(
-                  "https://i.pravatar.cc/100?img=",
-                  ""
-                )}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
+                value="https://i.pravatar.cc/100"
                 className="w-72 p-2 border border-gray-300 rounded bg-white outline-none focus:ring-2 focus:ring-blue-500 text-gray-600"
               />
               <FieldInfo field={field} />
@@ -231,7 +230,10 @@ const ContactForm: FC<ContactFormProps> = ({ contact, onFormSubmit }) => {
                 Reset
               </button>
 
-              <Link to={contact ? "/contacts/$contactId" : "/contacts"}>
+              <Link
+                to={contact ? "/contacts/$contactId" : "/contacts"}
+                params={{ contactId: contact?.id }}
+              >
                 <button
                   type="button"
                   className="mx-2 py-1 px-3 text-sm bg-white text-blue-500 border-blue-500 rounded"

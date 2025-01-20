@@ -1,21 +1,18 @@
 import { FC, useState } from "react";
-import { Contact } from "../types";
 import { FaSearch } from "react-icons/fa";
 import { Link } from "@tanstack/react-router";
 import { Route } from "../routes/__root";
+import { useContacts } from "../api/contacts";
 
-interface SidebarProps {
-  contacts: Contact[];
-}
-
-const Sidebar: FC<SidebarProps> = ({ contacts }) => {
+const Sidebar: FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const { data: contacts, error } = useContacts({ name_like: searchTerm });
 
-  const { contactId = null } = Route.useParams();
+  const { contactId = "" }: { contactId?: string } = Route.useParams();
 
-  const filteredContacts = contacts.filter((contact) =>
-    contact.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  if (error) {
+    return <div>Error loading contacts</div>;
+  }
 
   return (
     <div className="w-96 bg-gray-200 p-4">
@@ -51,10 +48,14 @@ const Sidebar: FC<SidebarProps> = ({ contacts }) => {
       <hr className="h-px my-4 bg-gray-200 border-0 dark:bg-gray-400 -mx-4" />
 
       <ul className="contact-list">
-        {filteredContacts.map((contact) => (
+        {contacts?.length === 0 && (
+          <li className="text-gray-600">No contacts found</li>
+        )}
+        {contacts?.map((contact) => (
           <Link
-            to={`/contacts/${contact.id}`}
-            key={contact.id}
+            to="/contacts/$contactId"
+            params={{ contactId: contact.id }}
+            key={contact?.id}
             className="ml-auto"
           >
             <li

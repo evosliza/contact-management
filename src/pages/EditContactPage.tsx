@@ -1,8 +1,8 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useContact } from "../api/contacts";
-import ContactForm from "../components/ContactForm";
 import { Route } from "../routes/contacts/$contactId/edit";
 import { Contact } from "../types";
+import ContactForm from "../components/ContactForm";
 
 function EditContactPage() {
   const { contactId } = Route.useParams();

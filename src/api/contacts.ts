@@ -1,16 +1,24 @@
 import { Contact } from "../types";
-import { useQuery } from "@tanstack/react-query";
+import {
+  UseBaseMutationResult,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
-// export const fetchContacts = async (): Promise<Contact[]> => {
-//   const { data } = await axios.get("http://localhost:3000/contacts");
-//   return data as Contact[];
-// };
-
-export function useContacts() {
+export function useContacts(queryParams?: Record<string, string>) {
+  const queryString = queryParams
+    ? "?" + new URLSearchParams(queryParams).toString()
+    : "";
   return useQuery({
-    queryKey: ["contacts"],
+    queryKey: ["contacts", queryParams],
     queryFn: async (): Promise<Array<Contact>> => {
-      const response = await fetch("http://localhost:3000/contacts");
+      const response = await fetch(
+        `http://localhost:3000/contacts${queryString}`
+      );
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
       return await response.json();
     },
   });
@@ -28,37 +36,84 @@ export const useContact = (contactId: string | number) => {
   });
 };
 
-export const addContact = async (
-  newContact: Partial<Contact>
-): Promise<Contact> => {
-  const response = await fetch("http://localhost:3000/contacts", {
+export const addContact = async (newContact: Partial<Contact>) => {
+  const contact = await fetch("http://localhost:3000/contacts", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(newContact),
   });
-  return await response.json();
+
+  return contact.json();
 };
 
-export const updateContact = async (
-  updatedContact: Partial<Contact>
-): Promise<Contact> => {
-  const response = await fetch(
-    `http://localhost:3000/contacts/${updatedContact.id}`,
+export const useAddContact = (): UseBaseMutationResult<
+  unknown,
+  unknown,
+  Partial<Contact>,
+  unknown
+> => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (contact: Partial<Contact>) => addContact(contact),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["contacts"]);
+    },
+  });
+};
+
+const updateContact = async (
+  contactId: string | number,
+  contact: Partial<Contact>
+) => {
+  const cupdatedContact = await fetch(
+    `http://localhost:3000/contacts/${contactId}`,
     {
-      method: "PUT",
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(updatedContact),
+      body: JSON.stringify(contact),
     }
   );
-  return await response.json();
+
+  return cupdatedContact.json();
 };
 
-export const deleteContact = async (contactId: string | number) => {
-  await fetch(`http://localhost:3000/contacts/${contactId}`, {
+export const useUpdateContact = (): UseBaseMutationResult<
+  unknown,
+  unknown,
+  Contact,
+  unknown
+> => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (contact: Contact) => updateContact(contact.id, contact),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["contacts"]);
+    },
+  });
+};
+
+const deleteContact = async (contactId: string) => {
+  console.log("Deleting contact", contactId);
+  return await fetch(`http://localhost:3000/contacts/${contactId}`, {
     method: "DELETE",
+  });
+};
+
+export const useDeleteContact = (): UseBaseMutationResult<
+  unknown,
+  unknown,
+  string,
+  unknown
+> => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (contactId) => deleteContact(contactId),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["contacts"]);
+    },
   });
 };
